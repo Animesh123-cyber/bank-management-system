@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>BANK SYSTEM</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        .btn {
+            padding: 15px;
+            background: #007cba;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+        }
+
+        th {
+            background: #007cba;
+            color: white;
+        }
+
+        .msg {
+            padding: 15px;
+            margin: 10px;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="text-align:center;color:#007cba;">🏦 BANK MANAGEMENT SYSTEM</h1>
+    <div style="background:white;padding:20px;border-radius:10px;">
+        <button class="btn" onclick="showAccounts()">1. Accounts</button>
+        <button class="btn" onclick="showTrans()">2. Transactions</button>
+    </div>
+
+    <div id="accounts" style="display:none;background:white;padding:20px;margin:20px;border-radius:10px;">
+        <h2>Accounts Operations</h2>
+        <button class="btn" onclick="acc(1)">1. Enter Data</button>
+        <button class="btn" onclick="acc(2)">2. Add Data</button>
+        <button class="btn" onclick="acc(3)">3. Delete</button>
+        <button class="btn" onclick="acc(4)">4. Print</button>
+    </div>
+
+    <div id="trans" style="display:none;background:white;padding:20px;margin:20px;border-radius:10px;">
+        <h2>Transactions</h2>
+        <button class="btn" onclick="trans(1)">1. Deposit</button>
+        <button class="btn" onclick="trans(2)">2. Withdraw</button>
+        <button class="btn" onclick="trans(3)">3. Balance</button>
+    </div>
+
+    <div id="form" style="display:none;background:#f9f9f9;padding:20px;margin:20px;border-radius:10px;"></div>
+    <div id="output"></div>
+
+    <script>
+        b = [{ acno: 1001, name: "ANIMESH", balance: 5000, type: "current" }, { acno: 1002, name: "KRISH", balance: 3000, type: "current" }, { acno: 1003, name: "ABHISHEK", balance: 750, type: "savings" }, { acno: 1004, name: "TRIPTI", balance: 20000, type: "saving" }, { acno: 1005, name: "AKSHAT", balance: 100, type: "savings" }];
+
+        function showAccounts() { document.getElementById('accounts').style.display = 'block'; document.getElementById('trans').style.display = 'none'; document.getElementById('form').style.display = 'none'; }
+        function showTrans() { document.getElementById('trans').style.display = 'block'; document.getElementById('accounts').style.display = 'none'; document.getElementById('form').style.display = 'none'; }
+
+        function acc(n) {
+            document.getElementById('form').style.display = 'block';
+            if (n == 1) {
+                let h = '';
+                for (let i = 0; i < 5; i++) {
+                    h += `<div style="margin:15px 0;padding:15px;border:1px solid #ddd;">
+<strong>Account ${i + 1}:</strong><br>
+Acc No: <input id="no${i}" value="${b[i].acno}">
+Name: <input id="na${i}" value="${b[i].name}">
+Balance: <input id="nb${i}" value="${b[i].balance}">
+Type: <input id="nt${i}" value="${b[i].type}">
+</div>`;
+                }
+                h += '<button class="btn" onclick="saveAll()" style="width:100%;background:#28a7;">SAVE ALL DATA</button>';
+                document.getElementById('form').innerHTML = h;
+            }
+            if (n == 2) {
+                document.getElementById('form').innerHTML = 'Position: <input id="pos" type="number"><br>Acc No: <input id="nno"><br>Name: <input id="nna"><br>Balance: <input id="nnb"><br>Type: <input id="nnt"><br><button class="btn" onclick="addData()">ADD DATA</button>';
+            }
+            if (n == 3) {
+                document.getElementById('form').innerHTML = 'Position: <input id="dpos" type="number"><br><button class="btn" onclick="delData()" style="background:#e74c;">DELETE</button>';
+            }
+            if (n == 4) { printData(); }
+        }
+
+        function trans(n) {
+            document.getElementById('form').style.display = 'block';
+            if (n == 1) {
+                document.getElementById('form').innerHTML = 'Position: <input id="tpos1" type="number"><br>Amount: <input id="amt1" type="number"><br><button class="btn" onclick="deposit()">DEPOSIT</button>';
+            }
+            if (n == 2) {
+                document.getElementById('form').innerHTML = 'Position: <input id="tpos2" type="number"><br>Amount: <input id="amt2" type="number"><br><button class="btn" onclick="withdraw()">WITHDRAW</button>';
+            }
+            if (n == 3) {
+                document.getElementById('form').innerHTML = 'Position: <input id="tpos3" type="number"><br><button class="btn" onclick="balance()">BALANCE</button>';
+            }
+        }
+
+        function saveAll() {
+            for (let i = 0; i < 5; i++) {
+                b[i].acno = parseInt(document.getElementById('no' + i).value);
+                b[i].name = document.getElementById('na' + i).value;
+                b[i].balance = parseFloat(document.getElementById('nb' + i).value);
+                b[i].type = document.getElementById('nt' + i).value;
+            }
+            document.getElementById('output').innerHTML = '<div class="msg success">DATA SAVED TO FILE!</div>'; printData();
+        }
+
+        function addData() {
+            let p = parseInt(document.getElementById('pos').value) - 1;
+            b[p].acno = parseInt(document.getElementById('nno').value);
+            b[p].name = document.getElementById('nna').value;
+            b[p].balance = parseFloat(document.getElementById('nnb').value);
+            b[p].type = document.getElementById('nnt').value;
+            document.getElementById('output').innerHTML = '<div class="msg success">DATA ADDED!</div>'; printData();
+        }
+
+        function delData() {
+            let p = parseInt(document.getElementById('dpos').value) - 1;
+            for (let i = p; i < 4; i++) { b[i] = b[i + 1]; }
+            b[4] = { acno: 0, name: "", balance: 0, type: "" };
+            document.getElementById('output').innerHTML = '<div class="msg success">ACCOUNT DELETED!</div>'; printData();
+        }
+
+        function printData() {
+            let t = '<h3>ACCOUNTS:</h3><table><tr><th>#</th><th>AccNo</th><th>Name</th><th>Balance</th><th>Type</th></tr>';
+            for (let i = 0; i < 5; i++) {
+                if (b[i].acno > 0) {
+                    t += `<tr><td>${i + 1}</td><td>${b[i].acno}</td><td>${b[i].name}</td><td>₹${b[i].balance.toFixed(2)}</td><td>${b[i].type}</td></tr>`;
+                }
+            }
+            t += '</table>';
+            document.getElementById('output').innerHTML = t;
+        }
+
+        function deposit() {
+            let p = parseInt(document.getElementById('tpos1').value) - 1;
+            let a = parseFloat(document.getElementById('amt1').value);
+            b[p].balance += a;
+            document.getElementById('output').innerHTML = `<div class="msg success">New Balance: ₹${b[p].balance.toFixed(2)}</div>`; printData();
+        }
+
+        function withdraw() {
+            let p = parseInt(document.getElementById('tpos2').value) - 1;
+            let a = parseFloat(document.getElementById('amt2').value);
+            if (b[p].balance >= a + 100) {
+                b[p].balance -= a;
+                document.getElementById('output').innerHTML = `<div class="msg success">New Balance: ₹${b[p].balance.toFixed(2)}</div>`;
+            } else {
+                document.getElementById('output').innerHTML = '<div class="msg error">Insufficient balance (need ₹100 min)!</div>';
+            }
+            printData();
+        }
+
+        function balance() {
+            let p = parseInt(document.getElementById('tpos3').value) - 1;
+            document.getElementById('output').innerHTML = `<div class="msg success">Acc:${b[p].acno} | ${b[p].name} | ₹${b[p].balance.toFixed(2)} | ${b[p].type}</div>`;
+        }
+    </script>
+</body>
+
+</html>
